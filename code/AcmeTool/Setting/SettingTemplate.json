@@ -1,0 +1,67 @@
+{
+  // Acme服务目录地址
+  "AcmeDirectory": "https://acme-v02.api.letsencrypt.org/directory",
+
+  // 待申请的域名列表（挑战类型仅支持 dns-persist-01 和 http-01）
+  "HostList": [
+    {
+      "ChallengeType": "dns-persist-01",
+      "Type": "dns",
+      "Value": "example.com"
+    },
+    {
+      "ChallengeType": "http-01",
+      "Type": "ip",
+      "Value": "121.0.0.1"
+    }
+  ],
+
+  // 证书文件存放路径
+  "CertPath": "",
+  // 证书私钥存放路径
+  "CertKeyPath": "",
+
+
+  // 申请使用的配置文件（字符串，可空）
+  "Profile": "",
+  // 挑战文件存放目录（未使用http-01挑战可以不配置），80端口下 /.well-known/acme-challenge/ 目录的物理路径
+  "ChallengeFileDirectory": "",
+
+
+  // 自动生成密钥时使用的密钥类型（字符串，可空，默认ES384），支持：RS256、RS384、RS512、ES256、ES384、ES512
+  "KeyType": null,
+
+  // 证书更新触发的剩余时间（数字：天，最小有效值2天）
+  // CertPath 路径指向的证书，剩余时间大于该值则不申请新证书，小于该值则申请
+  // （默认：优先检查服务器是否支持 Renewal，支持则在该范围抵达后更新，否则以证书总的有效期日期为基准 大于10天为7天，小于等于10天为 2 天）
+  "RemainDayForUpdate": null,
+
+  // 希望获取的证书签发者名称（字符串，可空，未匹配到时返回默认证书链）
+  "ExpectedIssuer": null,
+
+  // 希望设置的证书使用者名称（字符串，可空），如果ACME服务器支持的情况下可用，未设置时默认为第一个域名
+  "Subject": null,
+
+  // 更新结果通知
+  "ResultMessage": {
+    // Webhook 接口
+    "Webhook": {
+      "TargetUrl": null,
+      //  [REAL_MESSAGE_PLACEHOLDER] 为消息内容的占位符
+      "MessageJson": "{\"msgtype\":\"text\",\"text\":{\"content\":\"[REAL_MESSAGE_PLACEHOLDER]\"}}"
+    },
+    // 邮件通知：失败时，会将日志记录作为附件发送
+    "Email": {
+      "SmtpServer": null,
+      "Port": 465,
+      "UseSsl": true,
+      "Username": "",
+      "Password": "",
+
+      // 发件人地址
+      "FromAddress": "",
+      // 收件人地址
+      "ToAddress": ""
+    }
+  }
+}

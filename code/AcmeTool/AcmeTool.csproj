@@ -12,9 +12,11 @@
 
   <ItemGroup>
     <None Remove="Setting\SettingTemplate.json" />
+    <None Remove="Setting\SettingTemplateEn.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Setting\SettingTemplateEn.json" />
     <EmbeddedResource Include="Setting\SettingTemplate.json" />
   </ItemGroup>
 

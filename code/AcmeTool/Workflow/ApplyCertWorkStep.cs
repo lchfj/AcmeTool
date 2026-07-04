@@ -22,6 +22,7 @@ using AcmeLib.Key;
 using AcmeLib.Order;
 using AcmeLib.Renewal;
 using AcmeTool.Exceptions;
+using AcmeTool.Languages;
 using AcmeTool.Record;
 using AcmeTool.Setting;
 
@@ -52,9 +53,9 @@ public partial class ApplyCertWorkStep
 
     public async Task<bool> CheckApplySettingAsync()
     {
-        using var scop = Logger.CreateScoped("申请配置检查");
+        using var scop = Logger.CreateScoped(LangString.Cur.ApplyWork_CheckApply_ScopedTitle);
 
-        await Logger.LogInfomation("开始校验配置");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckApply_Start);
 
 
 
@@ -64,7 +65,7 @@ public partial class ApplyCertWorkStep
 
         if (Setting.HostList is not { Count: > 0 })
         {
-            errorMessageList.Add("未配置域名列表");
+            errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_NoHostList);
         }
         else
         {
@@ -76,30 +77,30 @@ public partial class ApplyCertWorkStep
                     existsHttp01 = true;
                     if (item.Value.Contains('*'))
                     {
-                        errorMessageList.Add($"泛域名【{item.Value}】不可使用【{ChallengeType.Http01}】认证");
+                        errorMessageList.Add(string.Format(LangString.Cur.ApplyWork_CheckApply_Err_WildcardNotSupportHttp01, item.Value, ChallengeType.Http01));
                     }
                 }
                 else if (ChallengeType.DnsPersist01.Equals(item.ChallengeType))
                 {
                     if (item.Type == AcmeLib.Identifier.IdentifierType.Ip)
                     {
-                        errorMessageList.Add($"IP地址【{item.Value}】不可使用【{ChallengeType.DnsPersist01}】认证");
+                        errorMessageList.Add(string.Format(LangString.Cur.ApplyWork_CheckApply_Err_IpNotSupportDns01, item.Value, ChallengeType.DnsPersist01));
                     }
                 }
                 else
                 {
-                    errorMessageList.Add($"【{item.Value}】配置的认证方式【{item.ChallengeType}】无效");
+                    errorMessageList.Add(string.Format(LangString.Cur.ApplyWork_CheckApply_Err_InvalidChallengeType, item.Value, item.ChallengeType));
                 }
             }
             if (existsHttp01)
             {
                 if (string.IsNullOrWhiteSpace(Setting.ChallengeFileDirectory))
                 {
-                    errorMessageList.Add("未配置HTTP01挑战文件存放目录");
+                    errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_NoChallengeDir);
                 }
                 else if (!Directory.Exists(Setting.ChallengeFileDirectory))
                 {
-                    errorMessageList.Add("HTTP01挑战文件存放目录不存在");
+                    errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_ChallengeDirNotExist);
                 }
             }
         }
@@ -107,26 +108,26 @@ public partial class ApplyCertWorkStep
 
         if (string.IsNullOrWhiteSpace(Setting.CertPath))
         {
-            errorMessageList.Add("未配置证书存放路径！");
+            errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_NoCertPath);
         }
         else if (!Directory.Exists(Path.GetDirectoryName(Setting.CertPath)))
         {
-            errorMessageList.Add("证书存放目录不存在！");
+            errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_CertDirNotExist);
         }
 
 
         if (string.IsNullOrWhiteSpace(Setting.CertKeyPath))
         {
-            errorMessageList.Add("未配置证书密钥存放路径！");
+            errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_NoCertKeyPath);
         }
         else if (!Directory.Exists(Path.GetDirectoryName(Setting.CertKeyPath)))
         {
-            errorMessageList.Add("证书密钥存放目录不存在！");
+            errorMessageList.Add(LangString.Cur.ApplyWork_CheckApply_Err_CertKeyDirNotExist);
         }
 
         if (errorMessageList.Count == 0)
         {
-            await Logger.LogInfomation("配置校验通过");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckApply_Passed);
             return true;
         }
         else
@@ -141,7 +142,7 @@ public partial class ApplyCertWorkStep
         if (!Setting.HostList.Any(h => ChallengeType.Http01.Equals(h.ChallengeType)))
             return true;
 
-        using var scop12 = Logger.CreateScoped("HTTP01校验");
+        using var scop12 = Logger.CreateScoped(LangString.Cur.ApplyWork_CheckHttp01_Scoped);
 
         var filename = Guid.NewGuid().ToString();
         var filepath = Path.Combine(Setting.ChallengeFileDirectory!, filename);
@@ -181,13 +182,13 @@ public partial class ApplyCertWorkStep
                     if (text.Length > 128)
                         text = text.Substring(0, 128);
 
-                    errors.Add($"【{host.Value}】读取到的值与期望值不匹配：读取到的值为：\n{text}");
+                    errors.Add(string.Format(LangString.Cur.ApplyWork_CheckHttp01_Err_Http01ValueMismatch, host.Value, text));
                     result = false;
                 }
             }
             catch (Exception ex)
             {
-                errors.Add($"【{host.Value}】读取验证测试文件失败：\n{ex.Message}");
+                errors.Add(string.Format(LangString.Cur.ApplyWork_CheckHttp01_Err_Http01ReadFail, host.Value, ex.Message));
                 result = false;
             }
         }
@@ -203,56 +204,56 @@ public partial class ApplyCertWorkStep
 
     public async Task LoadAcmeAccountAsync()
     {
-        using var s = Logger.CreateScoped("ACME账户");
+        using var s = Logger.CreateScoped(LangString.Cur.ApplyWork_LoadAccount_Scope);
 
         var accountKey = await EncryptHelper.LoadKeyFromFileAsync(AccountKeyPath);
 
         if (accountKey is not null)
         {
-            await Logger.LogInfomation("以已存在的密钥创建或加载账户信息");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_LoadAccount_LoadExistAccountKey);
         }
         else
         {
-            await Logger.LogInfomation("创建新的账户密钥");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_LoadAccount_CreateNewAccountKey);
             accountKey = KeyManager.CreateNew(Setting.KeyType ?? KeyTypeName.ES384);
 
             await EncryptHelper.StoreKeyToFileAsync(accountKey, AccountKeyPath);
         }
 
         var account = await AcmeClient.NewAccount(accountKey, true);
-        await Logger.LogInfomation("已成功获取账户", account.Location!.AbsoluteUri);
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_LoadAccount_CreateNewSuccess, account.Location!.AbsoluteUri);
     }
 
     public async Task<CertCheckResult> CheckCurrentCertStateAsync()
     {
-        using var scoped = Logger.CreateScoped("更新检查");
+        using var scoped = Logger.CreateScoped(LangString.Cur.ApplyWork_CheckCurrent_Scoped);
 
         {
-            await Logger.LogInfomation("检查现有证书状态");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_Start);
 
             var currentCert = await CertLite.LoadFromFile(Setting.CertPath);
             var updateStat = await GetCertUpdateState(currentCert);
             if (updateStat == UpdateSateEnum.NotUpdate)
             {
-                await Logger.LogInfomation("现有证书有效，无需更新");
+                await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_NoNeedUpdate);
                 return new CertCheckResult() { Result = UpdateSateEnum.NotUpdate };
             }
         }
 
 
-        await Logger.LogInfomation("需要更新证书");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_NeedUpdate);
 
-        await Logger.LogInfomation("开始检查上一次申请的证书");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_CheckLast);
 
         var lastRecord = ApplyRecord.LoadLast(Setting.AcmeDirectory, AcmeClient.AccountKey!, Setting.HostList);
         if (lastRecord is null)
         {
-            await Logger.LogInfomation("未找到有效申请记录，开始正常申请流程");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_NoLastRecord);
             return new CertCheckResult() { Result = UpdateSateEnum.NormalUpdate };
         }
 
         // 有上次获取记录
-        await Logger.LogInfomation("发现上次申请记录，加载中");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LoadLastRecord);
 
         var lastOrder = await lastRecord.LoadOrderInfo();
         if (lastOrder is not null)
@@ -269,12 +270,12 @@ public partial class ApplyCertWorkStep
                     {
                         // 上次的证书有效
 
-                        await Logger.LogInfomation("上次申请的证书还在有效期中，替换现有证书");
+                        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastCertValidReplace);
                         return new CertCheckResult() { Result = UpdateSateEnum.Replace, LastRecord = lastRecord };
                     }
                     else
                     {
-                        await Logger.LogInfomation("上次申请的证书不可使用，启动更新");
+                        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastCertInvalidUpdate);
                         return new CertCheckResult() { Result = updateStat, LastCert = lastCert };
                     }
                 }
@@ -283,7 +284,7 @@ public partial class ApplyCertWorkStep
             {
                 if (!lastOrder.Expires.HasValue || lastOrder.Expires.Value > DateTimeOffset.UtcNow)
                 {
-                    await Logger.LogInfomation("发现上次未完成的申请记录，检查订单状态");
+                    await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_FindUnfinishedRecord);
 
                     var order = await AcmeClient.TryGetOrder(lastOrder.OrderUrl);
 
@@ -297,26 +298,26 @@ public partial class ApplyCertWorkStep
                             Status = OrderStatus.Invalid,
                         });
 
-                        await Logger.LogInfomation("无法读取上次证书申请信息，开始新的申请");
+                        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastOrderReadFail);
                         return new CertCheckResult() { Result = UpdateSateEnum.NormalUpdate };
                     }
 
                     await lastRecord.UpdateOrderInfo(order);
                     if (order.Content.Status is OrderStatus.Invalid)
                     {
-                        await Logger.LogInfomation("上次证书申请不可继续，开始新的申请");
+                        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastOrderNotContinue);
                         return new CertCheckResult() { Result = UpdateSateEnum.NormalUpdate };
                     }
                     else
                     {
-                        await Logger.LogInfomation("上次证书申请可以继续，继续申请");
+                        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastOrderCanContinue);
                         return new CertCheckResult() { Result = UpdateSateEnum.Continue, LastRecord = lastRecord };
                     }
                 }
             }
         }
 
-        await Logger.LogInfomation("上次证书申请记录无效，开始新的申请");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CheckCurrent_LastRecordInvalid);
         return new CertCheckResult() { Result = UpdateSateEnum.NormalUpdate };
     }
 
@@ -391,15 +392,15 @@ public partial class ApplyCertWorkStep
         Logger.SetExtendSetting(record);
     }
 
-    public async Task<AcmeResponse<OrderInfo>> CreatOrderAsync(CertLite? ariCert)
+    public async Task<AcmeResponse<OrderInfo>> CreateOrderAsync(CertLite? ariCert)
     {
-        using var scoped = Logger.CreateScoped("订单");
-        await Logger.LogInfomation("生成新订单");
+        using var scoped = Logger.CreateScoped(LangString.Cur.ApplyWork_CreateOrder_Scoped);
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CreateOrder_Start);
 
         var hostList = Setting.HostList.Select(i => i.ToIdentifierInfo()).ToImmutableList();
         var order = await AcmeClient.NewOrder(hostList, Setting.Profile, ariCert);
 
-        await Logger.LogInfomation("订单地址为：", order.Location!.AbsoluteUri);
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CreateOrder_OrderUrl, order.Location!.AbsoluteUri);
         return order;
     }
 
@@ -409,20 +410,20 @@ public partial class ApplyCertWorkStep
         var orderUrl = orderLite?.OrderUrl ?? throw new NullReferenceException();
 
 
-        using var socop = Logger.CreateScoped("ACME");
+        using var socop = Logger.CreateScoped(LangString.Cur.ApplyWork_ApplyCert_Scoped);
 
         var cycleIndex = 0;
         while (true)
         {
             if (cycleIndex > 100)
             {
-                await Logger.LogError("证书申请未在指定的周期内完成，强行终止");
+                await Logger.LogError(LangString.Cur.ApplyWork_ApplyCert_Err_ApplyCycleTimeout);
                 return;
             }
             cycleIndex++;
 
 
-            await Logger.LogInfomation("刷新订单状态");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_ApplyCert_RefreshOrder);
             var orderResponse = await AcmeClient.GetOrder(orderUrl);
             await ApplyExtendSetting.UpdateOrderInfo(orderResponse);
 
@@ -436,7 +437,7 @@ public partial class ApplyCertWorkStep
                     await SubmitOrderCsrAsync(order);
                     break;
                 case OrderStatus.Processing:
-                    await Logger.LogInfomation("证书生成中");
+                    await Logger.LogInfomation(LangString.Cur.ApplyWork_ApplyCert_WaitGenerating);
                     break;
                 case OrderStatus.Valid:
                     await DownloadCertAsync(order);
@@ -445,25 +446,25 @@ public partial class ApplyCertWorkStep
                     await SendOrderErrorInfoAsync(order);
                     break;
                 default:
-                    await Logger.LogError("证书状态错误：" + order.Status);
+                    await Logger.LogError(string.Format(LangString.Cur.ApplyWork_ApplyCert_Err_OrderStatusInvalid, order.Status));
                     return;
             }
 
-            await Logger.LogInfomation("本轮业务处理完成，等待10s进行下一轮处理");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_ApplyCert_WaitNextCycle);
             await Task.Delay(10_000);
         }
     }
 
     private async Task<IKey> CreateCertKeyAsync()
     {
-        using var scoped = Logger.CreateScoped("证书密钥");
+        using var scoped = Logger.CreateScoped(LangString.Cur.ApplyWork_CertKey_Scope);
 
-        await Logger.LogInfomation("尝试读取已存在的密钥");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_CertKey_LoadExist);
 
         var certKey = await EncryptHelper.LoadKeyFromFileAsync(ApplyExtendSetting.CertKeyBackupPath);
         if (certKey is null)
         {
-            await Logger.LogInfomation("密钥不存在，生成新的证书密钥");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_CertKey_CreateNew);
             certKey = KeyManager.CreateNew(Setting.KeyType ?? KeyTypeName.ES384);
 
             await EncryptHelper.StoreKeyToFileAsync(certKey, ApplyExtendSetting.CertKeyBackupPath);
@@ -474,9 +475,9 @@ public partial class ApplyCertWorkStep
 
     private async Task AuthorizateOrderAsync(OrderInfo order)
     {
-        using var socop = Logger.CreateScoped("域名认证");
+        using var socop = Logger.CreateScoped(LangString.Cur.ApplyWork_DomainAuth_Scoped);
 
-        await Logger.LogInfomation("开始对所有域名进行认证");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_DomainAuth_Start);
         foreach (var authUrl in order.Authorizations)
         {
             await AuthorizateOneAsync(authUrl);
@@ -488,7 +489,7 @@ public partial class ApplyCertWorkStep
         var authContext = await AcmeClient.GetAuthorization(authUrl);
         if (authContext is null || authContext.Content is null)
         {
-            await Logger.LogInfomation($"获取【{authUrl}】认证信息失败！");
+            await Logger.LogInfomation(string.Format(LangString.Cur.ApplyWork_DomainAuth_NotFound, authUrl));
             return;
         }
 
@@ -505,11 +506,11 @@ public partial class ApplyCertWorkStep
             case AuthorizationStatus.Valid:
                 return;
             default:
-                await Logger.LogInfomation("认证失败：" + authUrl);
+                await Logger.LogInfomation(string.Format(LangString.Cur.ApplyWork_DomainAuth_StatusError, authUrl));
                 return;
         }
 
-        await Logger.LogInfomation("开始认证");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_DomainAuth_Challenge_Start);
 
         ChallengeInfo? selectedChallenge;
         var setting = Setting.HostList.Find(i => i.Value == domain);
@@ -520,13 +521,13 @@ public partial class ApplyCertWorkStep
             var httpChallenge = authContext.GetHttp01(AcmeClient);
             if (httpChallenge is null)
             {
-                await Logger.LogError($"【{authUrl}】不包含【http-01】认证，申请终止");
+                await Logger.LogError(string.Format(LangString.Cur.ApplyWork_DomainAuth_Http01_Err_NoChallenge, authUrl));
                 throw new BreakWorkException();
             }
 
             selectedChallenge = httpChallenge.Challenge;
 
-            await Logger.LogInfomation("生成验证文件");
+            await Logger.LogInfomation(LangString.Cur.ApplyWork_DomainAuth_Http01_CreateVerifyFile);
             var path = Path.Combine(Setting.ChallengeFileDirectory!, httpChallenge.Filename);
             if (!File.Exists(path))
             {
@@ -541,17 +542,17 @@ public partial class ApplyCertWorkStep
             selectedChallenge = authContext.GetChallenge(ChallengeType.DnsPersist01);
             if (selectedChallenge is null)
             {
-                await Logger.LogError($"【{authUrl}】不包含【dns-persist-01】认证，申请终止");
+                await Logger.LogError(string.Format(LangString.Cur.ApplyWork_DomainAuth_DnsPersist01_Err_NoChallenge, authUrl));
                 throw new BreakWorkException();
             }
         }
         else
         {
-            await Logger.LogError("设置的申请方式不在支持的范围中");
+            await Logger.LogError(LangString.Cur.ApplyWork_DomainAuth_Err_Unsupported);
             throw new BreakWorkException();
         }
 
-        await Logger.LogInfomation("提交挑战");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_DomainAuth_Challenge_Acknowledge);
         await AcmeClient.AcknowledgeChallenge(selectedChallenge.Url);
     }
 
@@ -559,11 +560,11 @@ public partial class ApplyCertWorkStep
     {
         if (order.Error is not null)
         {
-            await Logger.LogError("订单无效：", order.Error);
+            await Logger.LogError(LangString.Cur.ApplyWork_SendError_OrderError, order.Error);
         }
         else
         {
-            using var socop = Logger.CreateScoped("域名认证错误");
+            using var socop = Logger.CreateScoped(LangString.Cur.ApplyWork_SendError_DomainError_Scoped);
 
             foreach (var authUrl in order.Authorizations)
             {
@@ -577,7 +578,7 @@ public partial class ApplyCertWorkStep
                 using var socopDomain = Logger.CreateScoped(domain);
 
                 var error = auth.Challenges.FirstOrDefault()?.Error;
-                await Logger.LogError("域名认证失败", error);
+                await Logger.LogError(LangString.Cur.ApplyWork_SendError_DomainError_AuthFail, error);
                 break;
             }
         }
@@ -587,11 +588,11 @@ public partial class ApplyCertWorkStep
 
     private async Task SubmitOrderCsrAsync(OrderInfo order)
     {
-        using var socopDomain = Logger.CreateScoped("证书请求");
+        using var socopDomain = Logger.CreateScoped(LangString.Cur.ApplyWork_SubmitCsr_Scope);
 
         var certKey = await CreateCertKeyAsync();
 
-        await Logger.LogInfomation("提交");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_SubmitCsr_Send);
         if (string.IsNullOrWhiteSpace(Setting.Subject))
             await AcmeClient.Finalize(order, certKey);
         else
@@ -600,8 +601,8 @@ public partial class ApplyCertWorkStep
 
     private async Task DownloadCertAsync(OrderInfo order)
     {
-        using var socopDomain = Logger.CreateScoped("证书下载");
-        await Logger.LogInfomation("开始下载证书");
+        using var socopDomain = Logger.CreateScoped(LangString.Cur.ApplyWork_DownloadCert_Scoped);
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_DownloadCert_Start);
 
 
         AcmeResponse<CertInfo> cert;
@@ -613,7 +614,7 @@ public partial class ApplyCertWorkStep
         // 保存证书到备份位置
         await File.WriteAllBytesAsync(ApplyExtendSetting.CertBackupPath, cert.Content.CertData);
 
-        await Logger.LogInfomation($"下载完成");
+        await Logger.LogInfomation(LangString.Cur.ApplyWork_DownloadCert_Success);
     }
 
     public async Task ClearChallengeFileAsync()
@@ -627,21 +628,21 @@ public partial class ApplyCertWorkStep
 
     public async Task CopyCertAsnc()
     {
-        using var sc = Logger.CreateScoped("【证书更新】");
+        using var sc = Logger.CreateScoped(LangString.Cur.ApplyWork_CopyCert_Scope);
 
         var certLite = await CertLite.LoadFromFile(ApplyExtendSetting.CertBackupPath);
         var certKey = await EncryptHelper.LoadKeyFromFileAsync(ApplyExtendSetting.CertKeyBackupPath);
 
         if (certLite is null || certKey is null)
         {
-            await Logger.LogError("无法读取新证书信息");
+            await Logger.LogError(LangString.Cur.ApplyWork_CopyCert_Err_LoadRecordCertFail);
             throw new BreakWorkException();
         }
 
         File.Copy(ApplyExtendSetting.CertBackupPath, Setting.CertPath);
         await File.WriteAllTextAsync(Setting.CertKeyPath, certKey.PrivateKeyPem);
 
-        var text = $"新证书有效期为【{certLite.NotBefore}】至【{certLite.NotAfter}】";
+        var text = string.Format(LangString.Cur.ApplyWork_CopyCert_Success, certLite.NotBefore, certLite.NotAfter);
         await Logger.SendSuccess(text);
     }
 }

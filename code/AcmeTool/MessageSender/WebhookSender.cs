@@ -14,6 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using AcmeTool.Languages;
 using AcmeTool.Setting;
 
 namespace AcmeTool.MessageSender;
@@ -32,17 +33,17 @@ public class WebhookSender
         var setting = ApplySetting.ResultMessage?.Webhook;
         if (!(setting?.IsOK() ?? false))
         {
-            ConsoleSender.SendInfomation("Webhook 配置无效，请检查");
+            ConsoleSender.SendInfomation(LangString.Cur.Webhook_Test_ConfigInvalid);
             return;
         }
 
         await SendMessageCoreAsync(contentBuilder);
 
-        ConsoleSender.SendInfomation(string.Empty, string.Empty, "Webhook 消息已发送，请查收");
+        ConsoleSender.SendInfomation(string.Empty, string.Empty, LangString.Cur.Message_Test_WebhookHint);
 
         static string contentBuilder()
         {
-            return "这是一条来自AcmeTool的测试消息";
+            return LangString.Cur.Message_Test_Content;
         }
     }
 
@@ -54,16 +55,19 @@ public class WebhookSender
         string contentBuilder()
         {
 
-            var hostnameList = ApplySetting.HostList.Select(i => i.Value).ToList();
+            var hostnameList = ApplySetting.HostList.Select(i => i.Value)
+                .Select(i => "【" + i + "】")
+                .ToList();
 
             var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine("[✔️]AcmeTool 证书更新成功通知[✔️]");
-
-
-            messageBuilder.Append("可使用者为【").AppendJoin("】、【", hostnameList).Append("】的证书已更新成功。").AppendLine();
+            messageBuilder.Append("[✔️]").Append(LangString.Cur.Message_CertUpdate_SuccessTitle).Append("[✔️]").AppendLine();
 
             messageBuilder.AppendLine();
-            messageBuilder.AppendLine("详细信息：");
+
+            messageBuilder.AppendFormat(LangString.Cur.Message_CertUpdate_SuccessMessage, string.Join(string.Empty, hostnameList)).AppendLine();
+
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine(LangString.Cur.Message_CertUpdate_DetailTitle);
             messageBuilder.AppendLine();
 
             messageBuilder.AppendLine(message);
@@ -78,16 +82,20 @@ public class WebhookSender
 
         string contentBuilder()
         {
-            var hostnameList = ApplySetting.HostList.Select(i => i.Value).ToList();
+            var hostnameList = ApplySetting.HostList.Select(i => i.Value)
+                .Select(i => "【" + i + "】")
+                .ToList();
 
             var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine("[❌]AcmeTool 证书更新失败通知[❌]");
+
+
+            messageBuilder.Append("[❌]").Append(LangString.Cur.Message_CertUpdate_FailTitle).Append("[❌]").AppendLine();
 
             messageBuilder.AppendLine();
-            messageBuilder.Append("可使用者为【").AppendJoin("】、【", hostnameList).Append("】的证书更新失败。").AppendLine();
+            messageBuilder.AppendFormat(LangString.Cur.Message_CertUpdate_FailMassage, string.Join(string.Empty, hostnameList)).AppendLine();
 
             messageBuilder.AppendLine();
-            messageBuilder.AppendLine("详细信息：");
+            messageBuilder.AppendLine(LangString.Cur.Message_CertUpdate_DetailTitle);
             messageBuilder.AppendLine();
 
             foreach (var item in message)
@@ -114,7 +122,7 @@ public class WebhookSender
         }
         catch (Exception ex)
         {
-            ConsoleSender.SendError("发送Webhook失败", ex);
+            ConsoleSender.SendError(LangString.Cur.Message_WebhookSendFailed, ex);
         }
     }
 

@@ -12,6 +12,7 @@
 
 using AcmeLib.Exception;
 using AcmeTool.Exceptions;
+using AcmeTool.Languages;
 using AcmeTool.Record;
 using AcmeTool.Setting;
 
@@ -24,7 +25,7 @@ public static class ApplyCertWorkController
         var logger = new LogRecorder(setting);
         if (setting.AcmeDirectory is null || !setting.AcmeDirectory.IsAbsoluteUri)
         {
-            await logger.LogError("未配置 Acme 端点");
+            await logger.LogError(LangString.Cur.ApplyCert_NoneAcme);
             await DelayExitAsync();
             return;
         }
@@ -42,12 +43,12 @@ public static class ApplyCertWorkController
         }
         catch (AcmeErrorException ex)
         {
-            await logger.LogError("ACME服务器响应错误", ex.AcmeError);
+            await logger.LogError(LangString.Cur.ApplyCert_AcmeResponseException, ex.AcmeError);
             await DelayExitAsync();
         }
         catch (Exception ex)
         {
-            await logger.LogError("未处理的异常", ex.ToString());
+            await logger.LogError(LangString.Cur.ApplyCert_UnhandelException, ex.ToString());
             await DelayExitAsync();
         }
         finally
@@ -64,7 +65,7 @@ public static class ApplyCertWorkController
             await Task.Delay(10 * 60 * 1000);
             Environment.Exit(-1);
         });
-        Console.WriteLine("（输入回车终止应用程序，或10分钟自动退出）");
+        Console.WriteLine(LangString.Cur.ApplyCert_ExitWait);
         Console.ReadLine();
     }
 
@@ -110,7 +111,7 @@ public static class ApplyCertWorkController
                     work.SetApplyRecord(record);
 
 
-                    var order = await work.CreatOrderAsync(checkResult.LastCert);
+                    var order = await work.CreateOrderAsync(checkResult.LastCert);
                     await record.UpdateOrderInfo(order);
 
 

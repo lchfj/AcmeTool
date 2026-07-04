@@ -1,0 +1,56 @@
+{
+  // Acme service directory address
+  "AcmeDirectory": "https://acme-v02.api.letsencrypt.org/directory",
+  // List of domains to apply for (challenge types only support dns-persist-01 and http-01)
+  "HostList": [
+    {
+      "ChallengeType": "dns-persist-01",
+      "Type": "dns",
+      "Value": "example.com"
+    },
+    {
+      "ChallengeType": "http-01",
+      "Type": "ip",
+      "Value": "121.0.0.1"
+    }
+  ],
+  // Storage path for certificate files
+  "CertPath": "",
+  // Storage path for certificate private key
+  "CertKeyPath": "",
+  // Configuration file used for application (string, can be empty)
+  "Profile": "",
+  // Directory for challenge files (not required if http-01 challenge is not used), physical path of /.well-known/acme-challenge/ under port 80
+  "ChallengeFileDirectory": "",
+  // Key type used when auto-generating keys (string, can be empty, default ES384), supported values: RS256, RS384, RS512, ES256, ES384, ES512
+  "KeyType": null,
+  // Remaining days threshold to trigger certificate renewal (number: days, minimum valid value is 2 days)
+  // If the remaining validity days of the certificate pointed by CertPath are greater than this value, no new certificate will be applied; if less, apply for a new certificate
+  // (Default: Check whether the server supports Renewal first. If supported, renew when the remaining days reach this threshold; otherwise, based on the total validity period of the certificate: 7 days if total validity > 10 days, 2 days if total validity ≤ 10 days)
+  "RemainDayForUpdate": null,
+  // Expected certificate issuer name (string, can be empty; default certificate chain will be returned if no match)
+  "ExpectedIssuer": null,
+  // Desired certificate subject name (string, can be empty), available if supported by the ACME server; defaults to the first domain when unset
+  "Subject": null,
+  // Notification for renewal results
+  "ResultMessage": {
+    // Webhook interface
+    "Webhook": {
+      "TargetUrl": null,
+      // [REAL_MESSAGE_PLACEHOLDER] is the placeholder for message content
+      "MessageJson": "{\"msgtype\":\"text\",\"text\":{\"content\":\"[REAL_MESSAGE_PLACEHOLDER]\"}}"
+    },
+    // Email notification: logs will be sent as attachments upon failure
+    "Email": {
+      "SmtpServer": null,
+      "Port": 465,
+      "UseSsl": true,
+      "Username": "",
+      "Password": "",
+      // Sender email address
+      "FromAddress": "",
+      // Recipient email address
+      "ToAddress": ""
+    }
+  }
+}

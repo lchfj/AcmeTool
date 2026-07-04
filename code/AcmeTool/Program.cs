@@ -10,6 +10,7 @@
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using AcmeTool.Languages;
 using AcmeTool.Setting;
 using AcmeTool.Workflow;
 
@@ -40,7 +41,7 @@ MailKitLite  : https://github.com/jstedfast/MailKit
 ");
 
 
-    Console.Write("当前工作目录：");
+    Console.Write(LangString.Cur.Main_WorkDirectory);
     Console.WriteLine(Path.GetFullPath("."));
 
     if (args.IsDecryptFile)
@@ -77,30 +78,30 @@ static async Task DecryptKey(ApplyArgs args)
                 var key = await EncryptHelper.LoadKeyFromFileAsync(args.FilePath);
                 if (key is not null)
                 {
-                    Console.WriteLine("加载成功，密钥如下：");
+                    Console.WriteLine(LangString.Cur.Main_Dk_Success);
                     Console.WriteLine();
                     Console.WriteLine(key.PrivateKeyPem);
                     Console.WriteLine();
                 }
                 else
                 {
-                    Console.WriteLine("文件无法加载为有效密钥");
+                    Console.WriteLine(LangString.Cur.Main_Dk_LoadFail);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("加载密钥文件出错：\r\n" + ex.ToString());
+                Console.WriteLine(LangString.Cur.Main_Dk_ErrorLoad + "：\r\n" + ex.ToString());
             }
 
         }
         else
         {
-            Console.WriteLine("指定文件不存在");
+            Console.WriteLine(LangString.Cur.Main_Dk_NoFile);
         }
     }
     else
     {
-        Console.WriteLine("未指定要解密的文件");
+        Console.WriteLine(LangString.Cur.Main_Dk_ArgNone);
     }
 
     Console.ReadLine();

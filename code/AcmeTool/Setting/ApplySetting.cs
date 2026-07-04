@@ -11,8 +11,10 @@
  */
 
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
+using AcmeTool.Languages;
 
 namespace AcmeTool.Setting;
 
@@ -23,7 +25,9 @@ public class ApplySetting
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        using var baseStream = assembly.GetManifestResourceStream("AcmeTool.Setting.SettingTemplate.json");
+        var name = CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "zh" ? "AcmeTool.Setting.SettingTemplate.json" : "AcmeTool.Setting.SettingTemplateEn.json";
+
+        using var baseStream = assembly.GetManifestResourceStream(name);
         if (baseStream is null)
             return string.Empty;
 
@@ -51,7 +55,7 @@ public class ApplySetting
     {
         settingFile = Path.GetFullPath(settingFile ?? "setting.json");
 
-        Console.Write("配置文件路径：");
+        Console.Write(LangString.Cur.ApplySettting_Path);
         Console.WriteLine(settingFile);
         Console.WriteLine();
         Console.WriteLine();
@@ -80,7 +84,7 @@ public class ApplySetting
         }
 
 
-        Console.WriteLine("配置文件不存在，已在配置文件路径生成默认配置模板");
+        Console.WriteLine(LangString.Cur.ApplySettting_Created);
         return null;
     }
 }

@@ -11,6 +11,7 @@
  */
 
 using AcmeLib.ProblemDetail;
+using AcmeTool.Languages;
 using AcmeTool.MessageSender;
 using AcmeTool.Record;
 using AcmeTool.Setting;
@@ -56,11 +57,11 @@ public class LogRecorder
         var list = new List<string>(6);
 
         list.Add(str);
-        list.Add("错误代码：" + error.Type);
+        list.Add(LangString.Cur.LogRecorder_ErrorCode + error.Type);
         if (!string.IsNullOrWhiteSpace(error.Title))
-            list.Add("错误标题：" + error.Title);
+            list.Add(LangString.Cur.LogRecorder_ErrorTitle + error.Title);
         if (!string.IsNullOrWhiteSpace(error.Detail))
-            list.Add("错误详情：" + error.Detail);
+            list.Add(LangString.Cur.LogRecorder_ErrorDetail + error.Detail);
 
         await LogError(list);
     }

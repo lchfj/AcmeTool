@@ -11,6 +11,7 @@
  */
 
 using System.Text;
+using AcmeTool.Languages;
 using AcmeTool.Setting;
 using MailKit.Net.Smtp;
 using MimeKit;
@@ -30,33 +31,35 @@ public class EmailSender
         var setting = ApplySetting.ResultMessage?.Email;
         if (!(setting?.IsOK() ?? false))
         {
-            ConsoleSender.SendInfomation("Email 配置无效，请检查");
+            ConsoleSender.SendInfomation(LangString.Cur.EmailConfigInvalidTip);
             return;
         }
 
-        await SendMessageCoreAsync("AcmeTool 消息测试", contentBuilder, null);
+        await SendMessageCoreAsync(LangString.Cur.Message_Test_Content, contentBuilder, null);
 
-        ConsoleSender.SendInfomation(string.Empty, string.Empty, "Email 消息已发送，请查收");
+        ConsoleSender.SendInfomation(string.Empty, string.Empty, LangString.Cur.Message_Test_EmailHint);
 
         static string contentBuilder()
         {
-            return "这是一条来自AcmeTool的测试消息";
+            return LangString.Cur.Message_Test_Content;
         }
     }
 
     public Task SendSuccess(string message)
     {
-        var title = "AcmeTool 证书更新成功通知";
+        var title = LangString.Cur.Message_CertUpdate_SuccessTitle;
         return SendMessageCoreAsync(title, contentBuilder, null);
 
         string contentBuilder()
         {
 
-            var hostnameList = ApplySetting.HostList.Select(i => i.Value).ToList();
+            var hostnameList = ApplySetting.HostList.Select(i => i.Value)
+                .Select(i => "【" + i + "】")
+                .ToList();
 
             var messageBuilder = new StringBuilder();
 
-            messageBuilder.Append("可使用者为【").AppendJoin("】、【", hostnameList).Append("】的证书已更新成功，以下为详细信息。").AppendLine();
+            messageBuilder.AppendFormat(LangString.Cur.Message_CertUpdate_SuccessMessage, string.Join(string.Empty, hostnameList)).AppendLine();
             messageBuilder.AppendLine();
 
             messageBuilder.AppendLine(message);
@@ -66,16 +69,18 @@ public class EmailSender
 
     public Task SendError(IEnumerable<string> message, string? attrFilePath)
     {
-        var title = "AcmeTool 证书更新失败通知";
+        var title = LangString.Cur.Message_CertUpdate_FailTitle;
         return SendMessageCoreAsync(title, contentBuilder, attrFilePath);
 
         string contentBuilder()
         {
-            var hostnameList = ApplySetting.HostList.Select(i => i.Value).ToList();
+            var hostnameList = ApplySetting.HostList.Select(i => i.Value)
+                .Select(i => "【" + i + "】")
+                .ToList();
 
             var messageBuilder = new StringBuilder();
 
-            messageBuilder.Append("可使用者为【").AppendJoin("】、【", hostnameList).Append("】的证书更新失败，以下为详细信息。").AppendLine();
+            messageBuilder.AppendFormat(LangString.Cur.Message_CertUpdate_FailMassage, string.Join(string.Empty, hostnameList)).AppendLine();
             messageBuilder.AppendLine();
 
             foreach (var item in message)
@@ -100,7 +105,7 @@ public class EmailSender
         }
         catch (Exception ex)
         {
-            ConsoleSender.SendError("", ex);
+            ConsoleSender.SendError(LangString.Cur.Message_EmailSendFailed, ex);
         }
     }
 

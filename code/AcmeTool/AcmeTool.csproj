@@ -8,6 +8,22 @@
     <PublishAot>true</PublishAot>
     <Nullable>enable</Nullable>
     <PackAsTool>True</PackAsTool>
+    <Title>Acme证书更新工具</Title>
+    <Version>1.0.0.0</Version>
+    <Authors>lchfj</Authors>
+    <Copyright>Copyright @ 2026 lchfj.cn</Copyright>
+    <PackageTags>acme;certificate;cert;ssl;tls;https;letsencrypt</PackageTags>
+    <PackageLicenseFile>COPYING</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/lchfj/AcmeTool</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lchfj/AcmeTool</RepositoryUrl>
+    <Description>AcmeTool 是一个用于通过 ACME 协议更新证书的控制台程序。
+AcmeTool is a console program for update cert by acme protocol.
+		</Description>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +34,21 @@
   <ItemGroup>
     <EmbeddedResource Include="Setting\SettingTemplateEn.json" />
     <EmbeddedResource Include="Setting\SettingTemplate.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\COPYING">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

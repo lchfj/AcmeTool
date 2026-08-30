@@ -639,7 +639,7 @@ public partial class ApplyCertWorkStep
             throw new BreakWorkException();
         }
 
-        File.Copy(ApplyExtendSetting.CertBackupPath, Setting.CertPath);
+        File.Copy(ApplyExtendSetting.CertBackupPath, Setting.CertPath, true);
         await File.WriteAllTextAsync(Setting.CertKeyPath, certKey.PrivateKeyPem);
 
         var text = string.Format(LangString.Cur.ApplyWork_CopyCert_Success, certLite.NotBefore, certLite.NotAfter);

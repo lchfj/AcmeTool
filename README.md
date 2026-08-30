@@ -109,7 +109,11 @@ dotnet AcmeTool.dll [-la] [-fu] [-ch] [-tm] [-de] [filepath]
 # 第三方依赖库
 
 MailKitLite v4.7.*
+
 MimeKitLite v4.7.*
+
 License: MIT 
+
 Copyright (C) 2013-2026 .NET Foundation and Contributors
+
 SourceCode : [https://github.com/jstedfast/MailKit](https://github.com/jstedfast/MailKit)

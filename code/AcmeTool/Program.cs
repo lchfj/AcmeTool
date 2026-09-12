@@ -46,7 +46,7 @@ MailKitLite  : https://github.com/jstedfast/MailKit
 
     if (args.IsDecryptFile)
     {
-        await DecryptKey(args);
+        await EncryptHelper.DecryptKey(args);
         return;
     }
 
@@ -66,43 +66,3 @@ MailKitLite  : https://github.com/jstedfast/MailKit
     }
 }
 
-
-static async Task DecryptKey(ApplyArgs args)
-{
-    if (!string.IsNullOrWhiteSpace(args.FilePath))
-    {
-        if (File.Exists(args.FilePath))
-        {
-            try
-            {
-                var key = await EncryptHelper.LoadKeyFromFileAsync(args.FilePath);
-                if (key is not null)
-                {
-                    Console.WriteLine(LangString.Cur.Main_Dk_Success);
-                    Console.WriteLine();
-                    Console.WriteLine(key.PrivateKeyPem);
-                    Console.WriteLine();
-                }
-                else
-                {
-                    Console.WriteLine(LangString.Cur.Main_Dk_LoadFail);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(LangString.Cur.Main_Dk_ErrorLoad + "：\r\n" + ex.ToString());
-            }
-
-        }
-        else
-        {
-            Console.WriteLine(LangString.Cur.Main_Dk_NoFile);
-        }
-    }
-    else
-    {
-        Console.WriteLine(LangString.Cur.Main_Dk_ArgNone);
-    }
-
-    Console.ReadLine();
-}

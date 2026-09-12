@@ -71,16 +71,11 @@ public static class ApplyCertWorkController
 
     private static async Task ApplyWork(ApplyCertWorkStep work, ApplyArgs fullSetting)
     {
-        if (fullSetting.TestMessageSender)
+        if (fullSetting.IsLoadAccountOnly)
         {
-            await work.Logger.TestMessageSendAsync();
+            await work.LoadAcmeAccountAsync();
             return;
         }
-
-
-        await work.LoadAcmeAccountAsync();
-        if (fullSetting.IsLoadAccountOnly)
-            return;
 
         if (!await work.CheckApplySettingAsync())
             throw new BreakWorkException();
@@ -95,6 +90,11 @@ public static class ApplyCertWorkController
         var checkResult = new CertCheckResult() { Result = UpdateSateEnum.NormalUpdate };
         if (!fullSetting.IsForceUpdate)
             checkResult = await work.CheckCurrentCertStateAsync();
+
+        if (checkResult.Result == UpdateSateEnum.NotUpdate)
+            return;
+
+        await work.LoadAcmeAccountAsync();
 
         switch (checkResult.Result)
         {

@@ -15,11 +15,52 @@ using System.Buffers.Text;
 using System.Security.Cryptography;
 using System.Text;
 using AcmeLib.Key;
+using AcmeTool.Languages;
+using AcmeTool.Setting;
 
 namespace AcmeTool.Workflow;
 
 public static class EncryptHelper
 {
+    public static async Task DecryptKey(ApplyArgs args)
+    {
+        if (!string.IsNullOrWhiteSpace(args.FilePath))
+        {
+            if (File.Exists(args.FilePath))
+            {
+                try
+                {
+                    var key = await LoadKeyFromFileAsync(args.FilePath);
+                    if (key is not null)
+                    {
+                        Console.WriteLine(LangString.Cur.Main_Dk_Success);
+                        Console.WriteLine();
+                        Console.WriteLine(key.PrivateKeyPem);
+                        Console.WriteLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine(LangString.Cur.Main_Dk_LoadFail);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(LangString.Cur.Main_Dk_ErrorLoad + "：\r\n" + ex.ToString());
+                }
+
+            }
+            else
+            {
+                Console.WriteLine(LangString.Cur.Main_Dk_NoFile);
+            }
+        }
+        else
+        {
+            Console.WriteLine(LangString.Cur.Main_Dk_ArgNone);
+        }
+
+        Console.ReadLine();
+    }
     public static async Task StoreKeyToFileAsync(IKey key, string path)
     {
         var thumbprint = key.GetKeyThumbprint();

@@ -88,8 +88,6 @@ public class CertWorkMessageZhCN : ICertWorkMessage
 
     public string ApplyCert_UnhandelException => "未处理的异常";
 
-    public string ApplyCert_ExitWait => "（输入回车终止应用程序，或10分钟自动退出）";
-
     public string ApplySettting_Path => "配置文件路径：";
 
     public string ApplySettting_Created => "配置文件不存在，已在配置文件路径生成默认配置模板";
@@ -117,4 +115,6 @@ public class CertWorkMessageZhCN : ICertWorkMessage
 
     public string Message_Test_EmailHint => "Email 消息已发送，请查收";
     public string Message_EmailSendFailed => "发送Email失败";
+
+    public string Console_ExitWait => "（输入回车终止应用程序，或10分钟自动退出）";
 }

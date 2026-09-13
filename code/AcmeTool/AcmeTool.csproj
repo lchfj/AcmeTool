@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <PackAsTool>True</PackAsTool>
     <Title>Acme证书更新工具</Title>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Authors>lchfj</Authors>
     <Copyright>Copyright @ 2026 lchfj.cn</Copyright>
     <PackageTags>acme;certificate;cert;ssl;tls;https;letsencrypt</PackageTags>

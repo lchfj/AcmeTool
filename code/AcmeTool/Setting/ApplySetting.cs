@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using AcmeTool.Languages;
+using AcmeTool.MessageSender;
 
 namespace AcmeTool.Setting;
 
@@ -85,6 +86,7 @@ public class ApplySetting
 
 
         Console.WriteLine(LangString.Cur.ApplySettting_Created);
+        await ConsoleSender.DelayExitAsync();
         return null;
     }
 }

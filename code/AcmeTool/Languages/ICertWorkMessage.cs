@@ -356,10 +356,6 @@ public interface ICertWorkMessage
     /// </summary>
     string ApplyCert_UnhandelException { get; }
     /// <summary>
-    /// （输入回车终止应用程序，或10分钟自动退出）
-    /// </summary>
-    string ApplyCert_ExitWait { get; }
-    /// <summary>
     /// 配置文件路径
     /// </summary>
     string ApplySettting_Path { get; }
@@ -427,4 +423,9 @@ public interface ICertWorkMessage
     /// 发送Email失败
     /// </summary>
     string Message_EmailSendFailed { get; }
+
+    /// <summary>
+    /// （输入回车终止应用程序，或10分钟自动退出）
+    /// </summary>
+    string Console_ExitWait { get; }
 }

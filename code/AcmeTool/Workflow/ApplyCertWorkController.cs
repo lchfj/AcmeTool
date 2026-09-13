@@ -13,6 +13,7 @@
 using AcmeLib.Exception;
 using AcmeTool.Exceptions;
 using AcmeTool.Languages;
+using AcmeTool.MessageSender;
 using AcmeTool.Record;
 using AcmeTool.Setting;
 
@@ -26,7 +27,7 @@ public static class ApplyCertWorkController
         if (setting.AcmeDirectory is null || !setting.AcmeDirectory.IsAbsoluteUri)
         {
             await logger.LogError(LangString.Cur.ApplyCert_NoneAcme);
-            await DelayExitAsync();
+            await ConsoleSender.DelayExitAsync();
             return;
         }
 
@@ -39,34 +40,22 @@ public static class ApplyCertWorkController
         }
         catch (BreakWorkException)
         {
-            await DelayExitAsync();
+            await ConsoleSender.DelayExitAsync();
         }
         catch (AcmeErrorException ex)
         {
             await logger.LogError(LangString.Cur.ApplyCert_AcmeResponseException, ex.AcmeError);
-            await DelayExitAsync();
+            await ConsoleSender.DelayExitAsync();
         }
         catch (Exception ex)
         {
             await logger.LogError(LangString.Cur.ApplyCert_UnhandelException, ex.ToString());
-            await DelayExitAsync();
+            await ConsoleSender.DelayExitAsync();
         }
         finally
         {
             await work.ClearChallengeFileAsync();
         }
-    }
-
-    private static async Task DelayExitAsync()
-    {
-        _ = Task.Run(async () =>
-        {
-            // 10分钟自动退出，防止长期运行
-            await Task.Delay(10 * 60 * 1000);
-            Environment.Exit(-1);
-        });
-        Console.WriteLine(LangString.Cur.ApplyCert_ExitWait);
-        Console.ReadLine();
     }
 
     private static async Task ApplyWork(ApplyCertWorkStep work, ApplyArgs fullSetting)

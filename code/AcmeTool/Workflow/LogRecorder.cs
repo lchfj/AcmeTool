@@ -130,6 +130,8 @@ public class LogRecorder
     {
         await WebhookSender.SendTestMessageAsync();
         await EmailSender.SendTestMessageAsync();
+
+        await ConsoleSender.DelayExitAsync();
     }
 
     private class ScopedDisposable : IDisposable

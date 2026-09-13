@@ -1,3 +1,7 @@
+
+
+using AcmeTool.Languages;
+
 /**
  * AcmeTool is a console program for update cert by acme protocol.
  * 
@@ -14,6 +18,29 @@ namespace AcmeTool.MessageSender;
 
 public static class ConsoleSender
 {
+    public static async Task DelayExitAsync()
+    {
+        Console.WriteLine(LangString.Cur.Console_ExitWait);
+
+        var startTick = DateTime.UtcNow.Ticks;
+
+        while (true)
+        {
+            await Task.Delay(100);
+            if (DateTime.UtcNow.Ticks > startTick + TimeSpan.TicksPerMinute * 10)
+                break;
+
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
     public static void SendError(string message, Exception ex)
     {
         SendError([message]);

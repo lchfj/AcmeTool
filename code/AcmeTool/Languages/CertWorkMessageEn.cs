@@ -89,8 +89,6 @@ public class CertWorkMessageEn : ICertWorkMessage
 
     public string ApplyCert_UnhandelException => "Unhandled exception";
 
-    public string ApplyCert_ExitWait => "(Press Enter to terminate the application, or it will exit automatically after 10 minutes)";
-
     public string ApplySettting_Path => "Configuration file path: ";
 
     public string ApplySettting_Created => "The configuration file does not exist; a default configuration template has been generated at the specified configuration path";
@@ -118,4 +116,6 @@ public class CertWorkMessageEn : ICertWorkMessage
     public string Message_Test_EmailHint => "Email message sent successfully, please check receipt";
 
     public string Message_EmailSendFailed => "Failed to send email message";
+
+    public string Console_ExitWait => "(Press Enter to terminate the application, or it will exit automatically after 10 minutes)";
 }

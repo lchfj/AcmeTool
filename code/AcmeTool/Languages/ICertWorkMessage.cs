@@ -428,4 +428,28 @@ public interface ICertWorkMessage
     /// （输入回车终止应用程序，或10分钟自动退出）
     /// </summary>
     string Console_ExitWait { get; }
+    /// <summary>
+    /// CA 不支持 dns-persist-01 挑战
+    /// </summary>
+    string DnsPersist01_Ca_UnSupport { get; }
+    /// <summary>
+    /// 请输入可使用该记录对应的域名：【*】表示全部域名
+    /// </summary>
+    string DnsPersist01_InputName { get; }
+    /// <summary>
+    /// 是否授权泛域名：【y】Txt记录所在域名及子域名；【n】仅Txt记录所在域名
+    /// </summary>
+    string DnsPersist01_InputWildcard { get; }
+    /// <summary>
+    /// 是否授权泛域名：【y】{0}及下级域名；【n】仅{0}
+    /// </summary>
+    string DnsPersist01_InputWildcard_Special { get; }
+    /// <summary>
+    /// 输入授权有效时间：空表示不限制，ISO8601/RFC3339格式
+    /// </summary>
+    string DnsPersist01_InputValidateTime { get; }
+    /// <summary>
+    /// Txt记录值如下
+    /// </summary>
+    string DnsPersist01_TxtResult { get; }
 }

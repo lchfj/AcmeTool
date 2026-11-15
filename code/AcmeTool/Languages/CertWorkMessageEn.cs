@@ -118,4 +118,16 @@ public class CertWorkMessageEn : ICertWorkMessage
     public string Message_EmailSendFailed => "Failed to send email message";
 
     public string Console_ExitWait => "(Press Enter to terminate the application, or it will exit automatically after 10 minutes)";
+
+    public string DnsPersist01_Ca_UnSupport => "CA does not support the dns-persist-01 challenge";
+
+    public string DnsPersist01_InputName => "Please enter the domain name for this record: [*] means all domains";
+
+    public string DnsPersist01_InputWildcard => "Authorize wildcard domain? [y] The domain of the TXT record and its subdomains; [n] Only the domain of the TXT record";
+
+    public string DnsPersist01_InputWildcard_Special => "Authorize wildcard domain? [y] {0} and its subdomains; [n] Only {0}";
+
+    public string DnsPersist01_InputValidateTime => "Enter authorization expiration time: leave blank for no limit, ISO8601/RFC3339 format";
+
+    public string DnsPersist01_TxtResult => "TXT record value is as follows";
 }

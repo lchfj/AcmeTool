@@ -11,6 +11,7 @@
 ### Nuget 包
 
 地址：[https://www.nuget.org/packages/AcmeTool]
+
 安装命令：
 ``` shell
 dotnet tool install --global AcmeTool
@@ -20,11 +21,13 @@ dotnet tool install --global AcmeTool
 
 地址：[https://github.com/lchfj/AcmeTool/releases](https://github.com/lchfj/AcmeTool/releases)
 
-当前包含两个版本的二进制文件
+当前包含三个版本的二进制文件
 
-1. `AcmeTool.AnyCpu.zip` 跨平台通用版本，可在任何支持 `dotnet 10.0` 的环境中运行，需安装 `dotnet 10.0` 运行时。
+1. `AcmeTool.AnyCpu.dotnet10.zip` 跨平台通用版本，可在任何支持 `.net 10.0` 的环境中运行，需安装 `.net 10.0` 运行时 [https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0/runtime]。
 
-2. `AcmeTool.win-x64_native.zip` 仅限 Windows x64 操作系统，Native AOT编译版本，无需 dotnet 运行时。
+2. `AcmeTool.AnyCpu.dotnet11.zip` 跨平台通用版本，可在任何支持 `.net 11.0` 的环境中运行，需安装 `.net 11.0` 运行时 [https://dotnet.microsoft.com/zh-cn/download/dotnet/11.0/runtime]。
+
+3. `AcmeTool.win-x64_native.zip` 仅限 Windows x64 操作系统，Native AOT编译版本，无需 dotnet 运行时。
 
 
 # 使用方式
@@ -49,20 +52,20 @@ dotnet tool install --global AcmeTool
 #### Nuget包 及 win-x64_native
 
 ```shell
-AcmeTool [-la] [-fu] [-ch] [-tm] [-de] [filepath]
+AcmeTool [-ld] [-fu] [-ch] [-tm] [-de] [filepath]
 ```
 
 #### AnyCpu 
 
 ```shell
-dotnet AcmeTool.dll [-la] [-fu] [-ch] [-tm] [-de] [filepath]
+dotnet AcmeTool.dll [-ld] [-fu] [-ch] [-tm] [-de] [filepath]
 ```
 
 #### 参数说明
 
 | 开关 | 说明 |
 |--|--|
-| -la | 仅创建账户：创建用户账户后终止，控制台输出账户地址，用于 dns-persist-01 配置 |
+| -ld | 仅生成 dns-persist-01 使用的 Txt 记录内容 |
 | -fu | 强制更新证书：无论现有证书是否有效，强制启动更新流程 |
 | -ch | 更新证书前检查 http-01 配置是否有效，默认不检查 |
 | -tm | 测试消息发送：不更新证书，仅测试配置文件传入的消息发送方法是否有效 |
@@ -88,7 +91,7 @@ dotnet AcmeTool.dll [-la] [-fu] [-ch] [-tm] [-de] [filepath]
 
 1. HTTP-01（[rfc8555](https://datatracker.ietf.org/doc/html/rfc8555)）；
 
-2. Dns-Persist-01（[Dns-Persist-01](https://datatracker.ietf.org/doc/html/draft-ietf-acme-dns-persist-01)）（并非所有CA均支持该挑战类型，使用前先确认支持情况）；
+2. Dns-Persist-01（[draft-ietf-acme-dns-persist-02](https://datatracker.ietf.org/doc/html/draft-ietf-acme-dns-persist-02)）（并非所有CA均支持该挑战类型，使用前先确认支持情况）；
 
 ### 支持的标识符类型
 
@@ -98,7 +101,7 @@ dotnet AcmeTool.dll [-la] [-fu] [-ch] [-tm] [-de] [filepath]
 
 ### 支持的扩展
 
-1. Profiles Extension（[Profiles Extension](https://datatracker.ietf.org/doc/html/draft-ietf-acme-profiles-01)）；
+1. Profiles Extension（[draft-ietf-acme-profiles-03](https://datatracker.ietf.org/doc/html/draft-ietf-acme-profiles-03)）；
 
 2. ARI Extension（[rfc9773](https://datatracker.ietf.org/doc/html/rfc9773)）（无开关参数，在可使用时自动应用该扩展）；
 
@@ -108,9 +111,7 @@ dotnet AcmeTool.dll [-la] [-fu] [-ch] [-tm] [-de] [filepath]
 
 # 第三方依赖库
 
-MailKitLite v4.7.*
-
-MimeKitLite v4.7.*
+MailKitLite & MimeKitLite v4.18.1
 
 License: MIT 
 

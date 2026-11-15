@@ -10,10 +10,8 @@
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-using AcmeLib.Exception;
+using AcmeLib.Challenge;
 using AcmeTool.Exceptions;
-using AcmeTool.Languages;
-using AcmeTool.MessageSender;
 using AcmeTool.Record;
 using AcmeTool.Setting;
 
@@ -21,51 +19,43 @@ namespace AcmeTool.Workflow;
 
 public static class ApplyCertWorkController
 {
-    public static async Task MainAsync(ApplyArgs args, ApplySetting setting)
+    public static async Task LoadDnsPersist01Txt(ApplyCertWorkStep work, ApplyArgs args)
     {
-        var logger = new LogRecorder(setting);
-        if (setting.AcmeDirectory is null || !setting.AcmeDirectory.IsAbsoluteUri)
+        var support = await work.AcmeClient.IsSupportDnsPersist01();
+        if (!support)
         {
-            await logger.LogError(LangString.Cur.ApplyCert_NoneAcme);
-            await ConsoleSender.DelayExitAsync();
+            await work.Logger.LogError(Languages.LangString.Cur.DnsPersist01_Ca_UnSupport);
             return;
         }
 
-        // 在这里初始化，主要为了保证 finally 删除生成的挑战文件
-        var work = new ApplyCertWorkStep(setting, logger);
+        await work.LoadAcmeAccountAsync();
 
-        try
+        ConsoleHelper.WriteLine(Languages.LangString.Cur.DnsPersist01_InputName);
+        var domain = ConsoleHelper.ReadText();
+
+        if (domain == "*")
         {
-            await ApplyWork(work, args);
+            ConsoleHelper.WriteLine(Languages.LangString.Cur.DnsPersist01_InputWildcard);
         }
-        catch (BreakWorkException)
+        else
         {
-            await ConsoleSender.DelayExitAsync();
+            var text = string.Format(Languages.LangString.Cur.DnsPersist01_InputWildcard_Special, domain);
+            ConsoleHelper.WriteLine(text);
         }
-        catch (AcmeErrorException ex)
-        {
-            await logger.LogError(LangString.Cur.ApplyCert_AcmeResponseException, ex.AcmeError);
-            await ConsoleSender.DelayExitAsync();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(LangString.Cur.ApplyCert_UnhandelException, ex.ToString());
-            await ConsoleSender.DelayExitAsync();
-        }
-        finally
-        {
-            await work.ClearChallengeFileAsync();
-        }
+        var wildcard = ConsoleHelper.ReadYesOrNo();
+
+        ConsoleHelper.WriteLine(Languages.LangString.Cur.DnsPersist01_InputValidateTime);
+        var persistUntil = ConsoleHelper.GetDateTimeOffset();
+
+        var txt = await work.AcmeClient.MakeDnsPersist01Text(domain, wildcard, persistUntil);
+        ConsoleHelper.WriteLine();
+        ConsoleHelper.WriteLine(Languages.LangString.Cur.DnsPersist01_TxtResult);
+        ConsoleHelper.WriteLine(txt);
+        ConsoleHelper.ReadText();
     }
 
-    private static async Task ApplyWork(ApplyCertWorkStep work, ApplyArgs fullSetting)
+    public static async Task ApplyCert(ApplyCertWorkStep work, ApplyArgs fullSetting)
     {
-        if (fullSetting.IsLoadAccountOnly)
-        {
-            await work.LoadAcmeAccountAsync();
-            return;
-        }
-
         if (!await work.CheckApplySettingAsync())
             throw new BreakWorkException();
 

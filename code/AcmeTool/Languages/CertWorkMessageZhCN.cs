@@ -117,4 +117,16 @@ public class CertWorkMessageZhCN : ICertWorkMessage
     public string Message_EmailSendFailed => "发送Email失败";
 
     public string Console_ExitWait => "（输入回车终止应用程序，或10分钟自动退出）";
+
+    public string DnsPersist01_Ca_UnSupport => "CA 不支持 dns-persist-01 挑战";
+
+    public string DnsPersist01_InputName => "请输入可使用该记录对应的域名：【*】表示全部域名";
+
+    public string DnsPersist01_InputWildcard => "是否授权泛域名：【y】Txt记录所在域名及子域名；【n】仅Txt记录所在域名";
+
+    public string DnsPersist01_InputWildcard_Special => "是否授权泛域名：【y】{0}及下级域名；【n】仅{0}";
+
+    public string DnsPersist01_InputValidateTime => "输入授权有效时间：空表示不限制，ISO8601/RFC3339格式";
+
+    public string DnsPersist01_TxtResult => "Txt记录值如下";
 }

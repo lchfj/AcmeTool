@@ -16,7 +16,7 @@ public class ApplyArgs
 {
     public required bool IsForceUpdate { get; init; }
     public required bool TestMessageSender { get; init; }
-    public required bool IsLoadAccountOnly { get; init; }
+    public required bool IsLoadDnsPersist01Txt { get; init; }
     public required bool IsCheckHost { get; init; }
     public required string FilePath { get; init; }
     public required bool IsDecryptFile { get; init; }
@@ -25,14 +25,13 @@ public class ApplyArgs
     {
         var settingFile = args?.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t) && t[0] != '-') ?? "setting.json";
 
-        if (!Path.IsPathRooted(settingFile))
-            settingFile = Path.GetFullPath(settingFile);
+        settingFile = new FileInfo(settingFile).FullName;
 
 
         return new ApplyArgs()
         {
             TestMessageSender = args?.Contains("-tm") ?? false,
-            IsLoadAccountOnly = args?.Contains("-la") ?? false,
+            IsLoadDnsPersist01Txt = args?.Contains("-ld") ?? false,
             IsForceUpdate = args?.Contains("-fu") ?? false,
             IsCheckHost = args?.Contains("-ch") ?? false,
             IsDecryptFile = args?.Contains("-de") ?? false,

@@ -16,7 +16,6 @@ using System.Security.Cryptography;
 using System.Text;
 using AcmeLib.Key;
 using AcmeTool.Languages;
-using AcmeTool.MessageSender;
 using AcmeTool.Setting;
 
 namespace AcmeTool.Workflow;
@@ -60,7 +59,7 @@ public static class EncryptHelper
             Console.WriteLine(LangString.Cur.Main_Dk_ArgNone);
         }
 
-        await ConsoleSender.DelayExitAsync();
+        await ConsoleHelper.DelayExitAsync();
     }
 
     public static async Task StoreKeyToFileAsync(IKey key, string path)

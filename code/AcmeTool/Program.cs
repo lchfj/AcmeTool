@@ -10,15 +10,24 @@
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using AcmeLib.Exception;
+using AcmeTool.Exceptions;
 using AcmeTool.Languages;
 using AcmeTool.Setting;
 using AcmeTool.Workflow;
 
-Task.Run(() => MainAsync(ApplyArgs.Create(args))).ConfigureAwait(false).GetAwaiter().GetResult();
+namespace AcmeTool;
 
-static async Task MainAsync(ApplyArgs args)
+internal static class Program
 {
-    Console.WriteLine(@"AcmeTool is a console program for update cert by acme protocol.
+    private static Task Main(string[] args)
+    {
+        return MainAsync(ApplyArgs.Create(args));
+    }
+
+    private static async Task MainAsync(ApplyArgs args)
+    {
+        Console.WriteLine(@"AcmeTool is a console program for update cert by acme protocol.
 
 Copyright (C) 2026 lchfj.cn
 
@@ -41,28 +50,72 @@ MailKitLite  : https://github.com/jstedfast/MailKit
 ");
 
 
-    Console.Write(LangString.Cur.Main_WorkDirectory);
-    Console.WriteLine(Path.GetFullPath("."));
+        Console.Write(LangString.Cur.Main_WorkDirectory);
+        Console.WriteLine(Path.GetFullPath("."));
 
-    if (args.IsDecryptFile)
-    {
-        await EncryptHelper.DecryptKey(args);
-        return;
-    }
+        if (args.IsDecryptFile)
+        {
+            await EncryptHelper.DecryptKey(args);
+            return;
+        }
 
 
-    var setting = await ApplySetting.LoadSetting(args.FilePath);
-    if (setting is null)
-        return;
+        var setting = await ApplySetting.LoadSetting(args.FilePath);
+        if (setting is null)
+            return;
 
-    if (args.TestMessageSender)
-    {
+
         var logger = new LogRecorder(setting);
-        await logger.TestMessageSendAsync();
+        if (args.TestMessageSender)
+        {
+            await logger.TestMessageSendAsync();
+            return;
+        }
+
+
+        if (setting.AcmeDirectory is null || !setting.AcmeDirectory.IsAbsoluteUri)
+        {
+            await logger.LogError(LangString.Cur.ApplyCert_NoneAcme);
+            await ConsoleHelper.DelayExitAsync();
+            return;
+        }
+
+        var work = new ApplyCertWorkStep(setting, logger);
+        if (args.IsLoadDnsPersist01Txt)
+        {
+            await RunWork(ApplyCertWorkController.LoadDnsPersist01Txt, work, args);
+        }
+        else
+        {
+            await RunWork(ApplyCertWorkController.ApplyCert, work, args);
+        }
     }
-    else
+
+    private static async Task RunWork(Func<ApplyCertWorkStep, ApplyArgs, Task> ApplyWork, ApplyCertWorkStep work, ApplyArgs args)
     {
-        await ApplyCertWorkController.MainAsync(args, setting);
+        try
+        {
+            await ApplyWork(work, args);
+        }
+        catch (BreakWorkException)
+        {
+            await ConsoleHelper.DelayExitAsync();
+        }
+        catch (AcmeErrorException ex)
+        {
+            await work.Logger.LogError(LangString.Cur.ApplyCert_AcmeResponseException, ex.AcmeError);
+
+            await ConsoleHelper.DelayExitAsync();
+        }
+        catch (Exception ex)
+        {
+            await work.Logger.LogError(LangString.Cur.ApplyCert_UnhandelException, ex.ToString());
+
+            await ConsoleHelper.DelayExitAsync();
+        }
+        finally
+        {
+            await work.ClearChallengeFileAsync();
+        }
     }
 }
-

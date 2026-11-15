@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <PublishAot>true</PublishAot>
     <Nullable>enable</Nullable>
     <PackAsTool>True</PackAsTool>
     <Title>Acme证书更新工具</Title>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>lchfj</Authors>
     <Copyright>Copyright @ 2026 lchfj.cn</Copyright>
     <PackageTags>acme;certificate;cert;ssl;tls;https;letsencrypt</PackageTags>
@@ -18,13 +18,22 @@
     <RepositoryUrl>https://github.com/lchfj/AcmeTool</RepositoryUrl>
     <Description>AcmeTool 是一个用于通过 ACME 协议更新证书的控制台程序。
 AcmeTool is a console program for update cert by acme protocol.
-		</Description>
+    </Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="$(TargetFramework)=='net11.0'">
+    <Features>runtime-async=on</Features>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKitLite" Version="4.18.1" />
+    <PackageReference Include="AcmeLib" Version="1.0.5" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Setting\SettingTemplate.json" />
@@ -49,11 +58,6 @@ AcmeTool is a console program for update cert by acme protocol.
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MailKitLite" Version="4.17.*" />
-    <PackageReference Include="AcmeLib" Version="1.0.*" />
   </ItemGroup>
 
 </Project>
